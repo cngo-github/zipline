@@ -12,7 +12,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from abc import ABCMeta
+from abc import ABCMeta, abstractproperty
+
+from pandas.tseries.holiday import AbstractHolidayCalendar
 from six import with_metaclass
 from numpy import searchsorted
 import numpy as np
@@ -30,7 +32,7 @@ from zipline.utils.calendars._calendar_helpers import (
     previous_divider_idx,
     is_open
 )
-from zipline.utils.memoize import remember_last
+from zipline.utils.memoize import remember_last, lazyval
 
 start_default = pd.Timestamp('1990-01-01', tz='UTC')
 end_base = pd.Timestamp('today', tz='UTC')
@@ -57,23 +59,14 @@ class TradingCalendar(with_metaclass(ABCMeta)):
     For each session, we store the open and close time in UTC time.
     """
     def __init__(self, start=start_default, end=end_default):
-        open_offset = self.open_offset
-        close_offset = self.close_offset
-
-        # Define those days on which the exchange is usually open.
-        self.day = CustomBusinessDay(
-            holidays=self.holidays_adhoc,
-            calendar=self.holidays_calendar,
-        )
-
         # Midnight in UTC for each trading day.
         _all_days = date_range(start, end, freq=self.day, tz='UTC')
 
         # `DatetimeIndex`s of standard opens/closes for each day.
         self._opens = days_at_time(_all_days, self.open_time, self.tz,
-                                   open_offset)
+                                   self.open_offset)
         self._closes = days_at_time(
-            _all_days, self.close_time, self.tz, close_offset
+            _all_days, self.close_time, self.tz, self.close_offset
         )
 
         # `DatetimeIndex`s of nonstandard opens/closes
@@ -113,7 +106,79 @@ class TradingCalendar(with_metaclass(ABCMeta)):
             _special_closes.map(self.minute_to_session_label)
         )
 
+    @lazyval
+    def day(self):
+        return CustomBusinessDay(
+            holidays=self.adhoc_holidays,
+            calendar=self.regular_holidays,
+        )
+
+    @abstractproperty
+    def name(self):
+        raise NotImplementedError()
+
+    @abstractproperty
+    def tz(self):
+        raise NotImplementedError()
+
+    @abstractproperty
+    def open_time(self):
+        raise NotImplementedError()
+
+    @abstractproperty
+    def close_time(self):
+        raise NotImplementedError()
+
     @property
+    def open_offset(self):
+        return 0
+
+    @property
+    def close_offset(self):
+        return 0
+
+    @property
+    def regular_holidays(self):
+        return None
+
+    @property
+    def adhoc_holidays(self):
+        return []
+
+    @property
+    def special_opens(self):
+        """
+        A list of special open times and corresponding HolidayCalendars.
+
+        Returns
+        -------
+        list: List of (time, AbstractHolidayCalendar) tuples
+        """
+        return []
+
+    @property
+    def special_closes(self):
+        """
+        A list of special close times and corresponding HolidayCalendars.
+
+        Returns
+        -------
+        list: List of (time, AbstractHolidayCalendar) tuples
+        """
+        return []
+
+    @property
+    def special_closes_adhoc(self):
+        """
+        Returns
+        -------
+        list: List of (time, DatetimeIndex) tuples that represent special
+         closes that cannot be codified into rules.
+        """
+        return []
+
+    # -----
+
     def opens(self):
         return self.schedule.market_open
 
@@ -645,15 +710,16 @@ class TradingCalendar(with_metaclass(ABCMeta)):
 
     def _special_opens(self, start, end):
         return self._special_dates(
-            self.special_opens_calendars,
-            self.special_opens_adhoc,
+            self.special_opens,
+            self.special_closes_adhoc,
             start,
             end,
         )
 
     def _special_closes(self, start, end):
+        import pdb; pdb.set_trace()
         return self._special_dates(
-            self.special_closes_calendars,
+            self.special_closes,
             self.special_closes_adhoc,
             start,
             end,
@@ -730,3 +796,8 @@ def _overwrite_special_dates(midnight_utcs,
     # maintaining sorting, this should be ok, but this is a good place to
     # sanity check if things start going haywire with calendar computations.
     opens_or_closes.values[indexer] = special_opens_or_closes.values
+
+
+class HolidayCalendar(AbstractHolidayCalendar):
+    def __init__(self, rules):
+        super(HolidayCalendar, self).__init__(self, rules=rules)
