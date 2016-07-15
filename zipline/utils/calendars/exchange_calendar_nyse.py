@@ -94,6 +94,9 @@ class NYSEExchangeCalendar(TradingCalendar):
     will be in 2025.  If someone is still maintaining this code in 2025, then
     we've done alright...and we should check if it's a half day.
     """
+
+    regular_early_close = time(13)
+
     @property
     def name(self):
         return "NYSE"
@@ -136,7 +139,7 @@ class NYSEExchangeCalendar(TradingCalendar):
     @property
     def special_closes(self):
         return [
-            (time(13), HolidayCalendar([
+            (self.regular_early_close, HolidayCalendar([
                 MonTuesThursBeforeIndependenceDay,
                 FridayAfterIndependenceDayExcept2013,
                 USBlackFridayInOrAfter1993,
@@ -151,7 +154,7 @@ class NYSEExchangeCalendar(TradingCalendar):
     @property
     def special_closes_adhoc(self):
         return [
-            (time(13), [
+            (self.regular_early_close, [
                 '1997-12-26',
                 '1999-12-31',
                 '2003-12-26',

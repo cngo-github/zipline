@@ -14,9 +14,13 @@
 # limitations under the License.
 
 from datetime import time
-from itertools import chain
 
-from pandas.tseries.holiday import AbstractHolidayCalendar
+from pandas.tseries.holiday import (
+    USPresidentsDay,
+    USLaborDay,
+    USThanksgivingDay,
+    GoodFriday
+)
 from pytz import timezone
 
 # Useful resources for making changes to this file:
@@ -31,41 +35,10 @@ from .us_holidays import (
     FridayAfterIndependenceDayExcept2013,
     MonTuesThursBeforeIndependenceDay,
     USBlackFridayInOrAfter1993,
-    # September11Closings,
-    USNationalDaysofMourning
+    USNationalDaysofMourning,
+    USMartinLutherKingJrAfter1998,
+    USMemorialDay
 )
-
-# US_CENTRAL = timezone('America/Chicago')
-# CME_OPEN = time(17)
-# CME_CLOSE = time(16)
-#
-#
-# CME_STANDARD_EARLY_CLOSE = time(12)
-
-#
-# class CMEHolidayCalendar(AbstractHolidayCalendar):
-#     """
-#     Non-trading days for the CME.
-#
-#     See CMEExchangeCalendar for full description.
-#     """
-#     rules = [
-#         USNewYearsDay,
-#         Christmas,
-#     ]
-#
-
-# class CMEEarlyCloseCalendar(AbstractHolidayCalendar):
-#     """
-#     Regular early close calendar for NYSE
-#     """
-#     rules = [
-#         MonTuesThursBeforeIndependenceDay,
-#         FridayAfterIndependenceDayExcept2013,
-#         USBlackFridayInOrAfter1993,
-#         ChristmasEveBefore1993,
-#         ChristmasEveInOrAfter1993,
-#     ]
 
 
 class CMEExchangeCalendar(TradingCalendar):
@@ -76,29 +49,9 @@ class CMEExchangeCalendar(TradingCalendar):
     Close Time: 5:00 PM, America/Chicago
 
     Regularly-Observed Holidays:
-    - New Years Day (observed on monday when Jan 1 is a Sunday)
-    - Christmas (observed on nearest weekday to December 25)
-
-    NOTE: For the following US Federal Holidays, part of the CME is closed
-    (Foreign Exchange, Interest Rates) but Commodities, GSCI, Weather & Real
-    Estate is open.  Thus, we don't treat these as holidays.
-    - Columbus Day
-    - Veterans Day
-
-    Regularly-Observed Early Closes:
-    - Martin Luther King Jr. Day (3rd Monday in January, only after 1998)
-    - Good Friday (two days before Easter Sunday)
-    - Memorial Day (last Monday in May)
-    - Independence Day (observed on the nearest weekday to July 4th)
-    - Labor Day (first Monday in September)
-    - Thanksgiving (fourth Thursday in November)
-    - Christmas Eve (except on Fridays, when the exchange is closed entirely)
-    - Day After Thanksgiving (aka Black Friday, observed from 1992 onward)
-
-    Additional Irregularities:
-    - Closed on 4/27/1994 due to Richard Nixon's death.
-    - Closed on 6/11/2004 due to Ronald Reagan's death.
-    - Closed on 1/2/2007 due to Gerald Ford's death.
+    - New Years Day
+    - Good Friday
+    - Christmas
     """
     @property
     def name(self):
@@ -134,6 +87,7 @@ class CMEExchangeCalendar(TradingCalendar):
         # close at noon.
         return HolidayCalendar([
             USNewYearsDay,
+            GoodFriday,
             Christmas,
         ])
 
@@ -142,22 +96,17 @@ class CMEExchangeCalendar(TradingCalendar):
         return USNationalDaysofMourning
 
     @property
-    def early_closes(self):
-        return HolidayCalendar([
-            MonTuesThursBeforeIndependenceDay,
-            FridayAfterIndependenceDayExcept2013,
-            USBlackFridayInOrAfter1993,
-            ChristmasEveBefore1993,
-            ChristmasEveInOrAfter1993,
-        ])
-
-    @property
     def special_closes(self):
         return [(
             time(12),
             HolidayCalendar([
+                USMartinLutherKingJrAfter1998,
+                USPresidentsDay,
+                USMemorialDay,
+                USLaborDay,
                 MonTuesThursBeforeIndependenceDay,
                 FridayAfterIndependenceDayExcept2013,
+                USThanksgivingDay,
                 USBlackFridayInOrAfter1993,
                 ChristmasEveBefore1993,
                 ChristmasEveInOrAfter1993,
