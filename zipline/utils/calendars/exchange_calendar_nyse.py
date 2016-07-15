@@ -15,10 +15,8 @@
 
 from datetime import time
 from itertools import chain
-import pandas as pd
 
 from pandas.tseries.holiday import(
-    AbstractHolidayCalendar,
     GoodFriday,
     USLaborDay,
     USPresidentsDay,
@@ -46,59 +44,7 @@ from .us_holidays import (
 
 # Useful resources for making changes to this file:
 # http://www.nyse.com/pdfs/closings.pdf
-# # http://www.stevemorse.org/jcal/whendid.html
-#
-# US_EASTERN = timezone('US/Eastern')
-# NYSE_OPEN = time(9, 31)
-# NYSE_CLOSE = time(16)
-# NYSE_STANDARD_EARLY_CLOSE = time(13)
-#
-# # Whether market opens or closes on a different calendar day, compared to the
-# # calendar day assigned by the exchange to this session.
-# NYSE_OPEN_OFFSET = 0
-# NYSE_CLOSE_OFFSET = 0
-#
-#
-# class NYSEHolidayCalendar(AbstractHolidayCalendar):
-#     """
-#     Non-trading days for the NYSE.
-#
-#     See NYSEExchangeCalendar for full description.
-#     """
-#     rules = [
-#         USNewYearsDay,
-#         USMartinLutherKingJrAfter1998,
-#         USPresidentsDay,
-#         GoodFriday,
-#         USMemorialDay,
-#         USIndependenceDay,
-#         USLaborDay,
-#         USThanksgivingDay,
-#         USIndependenceDay,
-#         Christmas,
-#     ]
-#
-#
-# class NYSE2PMCloseCalendar(AbstractHolidayCalendar):
-#     """
-#     Holiday Calendar for 2PM closes for NYSE
-#     """
-#     rules = [
-#         ChristmasEveBefore1993,
-#         USBlackFridayBefore1993,
-#     ]
-#
-#
-# class NYSEEarlyCloseCalendar(AbstractHolidayCalendar):
-#     """
-#     Regular early close calendar for NYSE
-#     """
-#     rules = [
-#         MonTuesThursBeforeIndependenceDay,
-#         FridayAfterIndependenceDayExcept2013,
-#         USBlackFridayInOrAfter1993,
-#         ChristmasEveInOrAfter1993,
-#     ]
+# http://www.stevemorse.org/jcal/whendid.html
 
 
 class NYSEExchangeCalendar(TradingCalendar):
@@ -206,7 +152,7 @@ class NYSEExchangeCalendar(TradingCalendar):
     def special_closes_adhoc(self):
         return [
             (time(13), [
-                #'1997-12-26',
+                '1997-12-26',
                 '1999-12-31',
                 '2003-12-26',
                 '2013-07-03'

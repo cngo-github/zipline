@@ -87,7 +87,6 @@ class CMEExchangeCalendar(TradingCalendar):
 
     Regularly-Observed Early Closes:
     - Martin Luther King Jr. Day (3rd Monday in January, only after 1998)
-    - Washington's Birthday (aka President's Day, 3rd Monday in February)
     - Good Friday (two days before Easter Sunday)
     - Memorial Day (last Monday in May)
     - Independence Day (observed on the nearest weekday to July 4th)

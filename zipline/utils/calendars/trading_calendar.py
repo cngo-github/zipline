@@ -157,6 +157,16 @@ class TradingCalendar(with_metaclass(ABCMeta)):
         return []
 
     @property
+    def special_opens_adhoc(self):
+        """
+        Returns
+        -------
+        list: List of (time, DatetimeIndex) tuples that represent special
+         closes that cannot be codified into rules.
+        """
+        return []
+
+    @property
     def special_closes(self):
         """
         A list of special close times and corresponding HolidayCalendars.
@@ -711,13 +721,12 @@ class TradingCalendar(with_metaclass(ABCMeta)):
     def _special_opens(self, start, end):
         return self._special_dates(
             self.special_opens,
-            self.special_closes_adhoc,
+            self.special_opens_adhoc,
             start,
             end,
         )
 
     def _special_closes(self, start, end):
-        import pdb; pdb.set_trace()
         return self._special_dates(
             self.special_closes,
             self.special_closes_adhoc,
