@@ -139,6 +139,12 @@ class TradingCalendar(with_metaclass(ABCMeta)):
 
     @property
     def regular_holidays(self):
+        """
+        Returns
+        -------
+        pd.AbstractHolidayCalendar: a calendar containing the regular holidays
+        for this calendar
+        """
         return None
 
     @property
